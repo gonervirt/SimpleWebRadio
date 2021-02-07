@@ -5,6 +5,33 @@
   Licensed under GNU GPL v3
   
   Wiring:
+  
+// ESP32dev Signal  Wired to LCD        Wired to VS1053      SDCARD   Wired to the rest
+// -------- ------  --------------      -------------------  ------   ---------------
+// GPIO32           -                   pin 1 XDCS            -       -
+// GPIO5            -                   pin 2 XCS             -       -
+// GPIO4            -                   pin 4 DREQ            -       -
+// GPIO2            pin 3 D/C or A0     -                     -       -
+// GPIO22           -                   -                     CS      -
+// GPIO16   RXD2    -                   -                     -       TX of NEXTION (if in use)
+// GPIO17   TXD2    -                   -                     -       RX of NEXTION (if in use)
+// GPIO18   SCK     pin 5 CLK or SCK    pin 5 SCK             CLK     -
+// GPIO19   MISO    -                   pin 7 MISO            MISO    -
+// GPIO23   MOSI    pin 4 DIN or SDA    pin 6 MOSI            MOSI    -
+// GPIO15           pin 2 CS            -                     -       -
+// GPI03    RXD0    -                   -                     -       Reserved serial input
+// GPIO1    TXD0    -                   -                     -       Reserved serial output
+// GPIO34   -       -                   -                     -       Optional pull-up resistor
+// GPIO35   -       -                   -                     -       Infrared receiver VS1838B
+// GPIO25   -       -                   -                     -       Rotary encoder CLK
+// GPIO26   -       -                   -                     -       Rotary encoder DT
+// GPIO27   -       -                   -                     -       Rotary encoder SW
+// -------  ------  ---------------     -------------------  ------   ----------------
+// GND      -       pin 8 GND           pin 8 GND                     Power supply GND
+// VCC 5 V  -       pin 7 BL            -                             Power supply
+// VCC 5 V  -       pin 6 VCC           pin 9 5V                      Power supply
+// EN       -       pin 1 RST           pin 3 XRST                    -
+//
   --------------------------------
   | VS1053  | ESP8266 |  ESP32   |
   --------------------------------
@@ -78,7 +105,31 @@ int httpPort = 8000;
 // The buffer size 64 seems to be optimal. At 32 and 128 the sound might be brassy.
 uint8_t mp3buff[64];
 
-void setup() {
+void connectWebRadio(const char *url)
+{
+  if (!client.connected())
+  {
+    Serial.print("connecting to ");
+    Serial.println(host);
+
+    if (!client.connect(host, httpPort))
+    {
+      Serial.println("Connection failed");
+      return;
+    }
+
+    Serial.print("Requesting stream: ");
+    Serial.println(path);
+
+    client.print(String("GET ") + path + " HTTP/1.1\r\n" +
+                 "Host: " + host + "\r\n" +
+                 "Connection: close\r\n\r\n");
+  }
+}
+  
+
+  void setup()
+  {
     
 
     Serial.begin(115200);
@@ -101,13 +152,15 @@ void setup() {
    WiFi.mode(WIFI_STA);
    //WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
     WiFiManager wm;
-    wm.autoConnect("AutoConnectAP","password"); // password protected ap
+    wm.autoConnect("AutoConnectAP",""); // password protected ap
 
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 
+    connectWebRadio("http://comet.shoutca.st:8563/1");
 
+    /*
     Serial.print("connecting to ");
     Serial.println(host);
 
@@ -122,9 +175,12 @@ void setup() {
     client.print(String("GET ") + path + " HTTP/1.1\r\n" +
                  "Host: " + host + "\r\n" +
                  "Connection: close\r\n\r\n");
+    */
 }
 
 void loop() {
+    connectWebRadio("http://comet.shoutca.st:8563/1");
+    /*
     if (!client.connected()) {
         Serial.println("Reconnecting...");
         if (client.connect(host, httpPort)) {
@@ -133,6 +189,7 @@ void loop() {
                          "Connection: close\r\n\r\n");
         }
     }
+    */
 
     if (client.available() > 0) {
         // The buffer size 64 seems to be optimal. At 32 and 128 the sound might be brassy.
