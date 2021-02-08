@@ -5,6 +5,33 @@
   Licensed under GNU GPL v3
   
   Wiring:
+
+ / ESP32dev Signal  	 Wired to VS1053     	Wired to the rest
+// -------- ------ 	  -------------------	 ---------------
+// GPIO32          	  pin 1 XDCS         	 -
+// GPIO5           	  pin 2 XCS          	 -
+// GPIO4           	  pin 4 DREQ         	 -
+// GPIO2           	  -                  	 -
+// GPIO22          	  -                  	 -
+// GPIO16   RXD2   	  -                  	 TX of NEXTION (if in use)
+// GPIO17   TXD2   	  -                  	 RX of NEXTION (if in use)
+// GPIO18   SCK    	  pin 5 SCK          	 -
+// GPIO19   MISO   	  pin 7 MISO         	 -
+// GPIO23   MOSI   	  pin 6 MOSI         	 -
+// GPIO15          	  -                  	 -
+// GPI03    RXD0   	  -                  	 Reserved serial input
+// GPIO1    TXD0   	  -                  	 Reserved serial output
+// GPIO34   -      	  -                  	 Optional pull-up resistor
+// GPIO35   -      	  -                  	 Infrared receiver VS1838B
+// GPIO25   -      	  -                  	 Rotary encoder CLK
+// GPIO26   -      	  -                  	 Rotary encoder DT
+// GPIO27   -      	  -                  	 Rotary encoder SW
+// -------  ------ 	  -------------------	 ----------------
+// GND      -      	  pin 8 GND          	 Power supply GND
+// VCC 5 V  -      	  -                  	 Power supply
+// VCC 5 V  -      	  pin 9 5V           	 Power supply
+// EN       -      	  pin 3 XRST         	 -
+ 
   
 // ESP32dev Signal  Wired to LCD        Wired to VS1053      SDCARD   Wired to the rest
 // -------- ------  --------------      -------------------  ------   ---------------
