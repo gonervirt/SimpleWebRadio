@@ -6,6 +6,33 @@
   
   Wiring:
 
+  //	ESP32dev Signal     	ESP8266	   Wired to VS1053      
+// 	-------- ------    	------------  	-------------------  
+// 	GPIO32             	GPIO 16 D0	    pin 1 XDCS           
+// 	GPIO5              	GPIO 5 D1	      pin 2 XCS            
+// 	GPIO4              	GPIO 4 D2	      pin 4 DREQ           
+// 	GPIO2              		-                    
+// 	GPIO22             		-                    
+// 	GPIO16   RXD2      		-                    
+// 	GPIO17   TXD2      		-                    
+// 	GPIO18   SCK       	D5 (GPIO 14)   	pin 5 SCK            
+// 	GPIO19   MISO      	D6 (GPIO 12)  	pin 7 MISO           
+// 	GPIO23   MOSI      	D7 (GPIO 13)	  pin 6 MOSI           
+// 	GPIO15             		-                    
+// 	GPI03    RXD0      		-                    
+// 	GPIO1    TXD0      		-                    
+// 	GPIO34   -         		-                    
+// 	GPIO35   -         		-                    
+// 	GPIO25   -         		-                    
+// 	GPIO26   -         		-                    
+// 	GPIO27   -         		-                    
+// 	-------  ------    		-----------    --------  
+// 	GND      -         		GND             pin 8 GND            
+// 	VCC 5 V  -         		-                    
+// 	VCC 5 V  -         		VIN             pin 9 5V             
+// 	EN       -         	  RST             RST	pin 3 XRST           
+
+
  / ESP32dev Signal  	 Wired to VS1053     	Wired to the rest
 // -------- ------ 	  -------------------	 ---------------
 // GPIO32          	  pin 1 XDCS         	 -
@@ -111,10 +138,19 @@
 
 
 
-#include <WiFi.h>
+//#include <WiFi.h>
+
+#ifdef ESP32
 #define VS1053_CS     5
 #define VS1053_DCS    32
 #define VS1053_DREQ   4
+#endif
+
+#ifdef ESP8266
+#define VS1053_CS     5
+#define VS1053_DCS    16
+#define VS1053_DREQ   4
+#endif
 
 
 // Default volume
