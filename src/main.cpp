@@ -138,18 +138,25 @@
 
 
 
+
 //#include <WiFi.h>
 
 #ifdef ESP32
 #define VS1053_CS     5
 #define VS1053_DCS    32
 #define VS1053_DREQ   4
+#define BUTTON_STATION1      27
+#define BUTTON_STATION2      26
+#define BUTTON_STATION3      25
 #endif
 
 #ifdef ESP8266
 #define VS1053_CS     5
 #define VS1053_DCS    16
 #define VS1053_DREQ   4
+#define BUTTON_STATION1      5
+#define BUTTON_STATION2      18
+#define BUTTON_STATION3      19
 #endif
 
 
@@ -161,19 +168,40 @@ WiFiClient client;
 
 
 //  http://comet.shoutca.st:8563/1
-const char *host = "airspectrum.cdnstream1.com";
-const char *path = "/1261_192";
-int httpPort = 8000;
+//const char *host = "airspectrum.cdnstream1.com";
+//const char *path = "/1261_192";
+//int httpPort = 8000;
+const char *station1="http://airspectrum.cdnstream1.com:8000/1261_192";
+const char *station2="http://icecast.rtl2.fr:80/rtl2-1-44-128?listen=webCwsBCggNCQgLDQUGBAcGBg";
+const char *station3="http://hitwest.ice.infomaniak.ch:80/hitwest-high.mp3";
+
+
+const char*currentStation = station1;
+int currentButton=BUTTON_STATION1;
 
 // The buffer size 64 seems to be optimal. At 32 and 128 the sound might be brassy.
 uint8_t mp3buff[64];
 
 void connectWebRadio(const char *url)
 {
+  
+  /*printf("ip = \"%s\"\n", ip);
+  printf("port = \"%d\"\n", port);
+  printf("page = \"\\%s\"\n", page);
+  */
+
   if (!client.connected())
   {
+    // split url
+    char host[100];
+    int httpPort = 80;
+    char path[100];
+    sscanf(url, "http://%99[^:]:%99d/%99[^\n]", host, &httpPort, path);
     Serial.print("connecting to ");
-    Serial.println(host);
+    Serial.print("http://");
+    Serial.print(host);
+    Serial.print(":");
+    Serial.println(httpPort);
 
     if (!client.connect(host, httpPort))
     {
@@ -182,12 +210,52 @@ void connectWebRadio(const char *url)
     }
 
     Serial.print("Requesting stream: ");
+   // Serial.println("http://"+host+":"+httpPort+path);
+    Serial.print("http://");
+    Serial.print(host);
+    Serial.print(":");
+    Serial.print(httpPort);
+    Serial.print("/");
     Serial.println(path);
-
-    client.print(String("GET ") + path + " HTTP/1.1\r\n" +
+  
+    client.print(String("GET ") + "/" + path + " HTTP/1.1\r\n" +
                  "Host: " + host + "\r\n" +
                  "Connection: close\r\n\r\n");
   }
+}
+
+void checkButton ()
+{
+    if (digitalRead(BUTTON_STATION1) == HIGH) {
+      // Button station 1 pressed
+      if (currentButton != BUTTON_STATION1) {
+        // on change de station
+        currentButton = BUTTON_STATION1;
+        currentStation = station1;
+        // disconnect current web connection
+        client.stop();
+      }
+    }
+    if (digitalRead(BUTTON_STATION2) == HIGH) {
+      // Button station 1 pressed
+      if (currentButton != BUTTON_STATION2) {
+        // on change de station
+        currentButton = BUTTON_STATION2;
+        currentStation = station2;
+        // disconnect current web connection
+        client.stop();
+      }
+    }
+    if (digitalRead(BUTTON_STATION3) == HIGH) {
+      // Button station 1 pressed
+      if (currentButton != BUTTON_STATION3) {
+        // on change de station
+        currentButton = BUTTON_STATION3;
+        currentStation = station3;
+        // disconnect current web connection
+        client.stop();
+      }
+    }
 }
   
 
@@ -221,7 +289,13 @@ void connectWebRadio(const char *url)
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 
-    connectWebRadio("http://comet.shoutca.st:8563/1");
+  // init button pour changer station
+    pinMode(BUTTON_STATION1, INPUT);
+    pinMode(BUTTON_STATION2, INPUT);
+    pinMode(BUTTON_STATION3, INPUT);
+
+ 
+    //connectWebRadio("http://comet.shoutca.st:8563/1");
 
     /*
     Serial.print("connecting to ");
@@ -242,7 +316,9 @@ void connectWebRadio(const char *url)
 }
 
 void loop() {
-    connectWebRadio("http://comet.shoutca.st:8563/1");
+    checkButton();
+
+    connectWebRadio(currentStation);
     /*
     if (!client.connected()) {
         Serial.println("Reconnecting...");
