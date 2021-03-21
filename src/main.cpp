@@ -1,10 +1,5 @@
 /**
-  A simple stream handler to play web radio stations using ESP8266
-
-  Copyright (C) 2018 Vince Gellár (github.com/vincegellar)
-  Licensed under GNU GPL v3
-  
-  Wiring:
+ 
 
   //	ESP32dev Signal     	ESP8266	   Wired to VS1053      
 // 	-------- ------    	------------  	-------------------  
