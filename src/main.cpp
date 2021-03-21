@@ -106,31 +106,7 @@
 
   To run this example define the platformio.ini as below.
 
-  [env:nodemcuv2]
-  platform = espressif8266
-  board = nodemcuv2
-  framework = arduino
-  build_flags = -D PIO_FRAMEWORK_ARDUINO_LWIP2_HIGHER_BANDWIDTH
-  lib_deps =
-    ESP_VS1053_Library
-
-  [env:esp32dev]
-  platform = espressif32
-  board = esp32dev
-  framework = arduino
-  lib_deps =
-    ESP_VS1053_Library
-
-  Instructions:
-  -Build the hardware
-    (please find an additional description and Fritzing's schematic here:
-     https://github.com/vincegellar/Simple-Radio-Node#wiring)
-  -Set the station in this file
-  -Upload the program
-
-  IDE Settings (Tools):
-  -IwIP Variant: v1.4 Higher Bandwidth
-  -CPU Frequency: 160Hz
+test 
 */
 
 #include <VS1053.h>
