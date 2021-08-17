@@ -105,7 +105,8 @@ test
 */
 
 #include <VS1053.h>
-#include <WiFiManager.h>
+#include <ESP_WiFiManager.h>
+//#include "configFile.h"
 
 
 
@@ -152,6 +153,8 @@ int currentButton=BUTTON_STATION1;
 
 // The buffer size 64 seems to be optimal. At 32 and 128 the sound might be brassy.
 uint8_t mp3buff[64];
+
+
 
 void connectWebRadio(const char *url)
 {
@@ -253,7 +256,7 @@ void checkButton ()
 
    WiFi.mode(WIFI_STA);
    //WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
-    WiFiManager wm;
+    ESP_WiFiManager wm;
     wm.autoConnect("AutoConnectAP",""); // password protected ap
 
     Serial.println("WiFi connected");
