@@ -1,13 +1,14 @@
 /**
  
 
-  //	ESP32dev Signal     	ESP8266	   Wired to VS1053      
+  //	ESP32dev Signal     	ESP8266	   Wired to VS1053      I2C screen
 // 	-------- ------    	------------  	-------------------  
 // 	GPIO32             	GPIO 16 D0	    pin 1 XDCS           
 // 	GPIO5              	GPIO 5 D1	      pin 2 XCS            
 // 	GPIO4              	GPIO 4 D2	      pin 4 DREQ           
 // 	GPIO2              		-                    
-// 	GPIO22             		-                    
+//  GPIO21                                                  SDA
+// 	GPIO22             		-                                 SCL
 // 	GPIO16   RXD2      		-                    
 // 	GPIO17   TXD2      		-                    
 // 	GPIO18   SCK       	D5 (GPIO 14)   	pin 5 SCK            
@@ -22,9 +23,9 @@
 // 	GPIO26   -         		-                    
 // 	GPIO27   -         		-                    
 // 	-------  ------    		-----------    --------  
-// 	GND      -         		GND             pin 8 GND            
+// 	GND      -         		GND             pin 8 GND         GND   
 // 	VCC 5 V  -         		-                    
-// 	VCC 5 V  -         		VIN             pin 9 5V             
+// 	VCC 5 V  -         		VIN             pin 9 5V          VCC   
 // 	EN       -         	  RST             RST	pin 3 XRST           
 
 
@@ -112,6 +113,23 @@ test
 #include <ArduinoOTA.h>
 
 //#include "configFile.h"
+// partie ecran
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+// The pins for I2C are defined by the Wire-library. 
+// On an arduino UNO:       A4(SDA), A5(SCL)
+// On an arduino MEGA 2560: 20(SDA), 21(SCL)
+// On an arduino LEONARDO:   2(SDA),  3(SCL), ...
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 
@@ -159,6 +177,35 @@ int currentButton=BUTTON_STATION1;
 // The buffer size 64 seems to be optimal. At 32 and 128 the sound might be brassy.
 uint8_t mp3buff[64];
 
+void testscrolltext(void) {
+  display.clearDisplay();
+  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0);             // Start at top-left corner
+  display.println(F("Hello, world!"));
+
+  display.setTextColor(SSD1306_BLACK, SSD1306_WHITE); // Draw 'inverse' text
+  display.println(3.141592);
+
+  display.setTextSize(2);             // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.print(F("0x")); 
+  display.println(0xDEADBEEF, HEX);
+
+  display.display();
+  delay(2000);
+}
+
+void display_str(const char *str){
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0,20);
+  display.println(str);
+  display.display();
+  display.clearDisplay();
+
+}
 
 
 void connectWebRadio(const char *url)
@@ -211,6 +258,7 @@ void checkButton ()
         // on change de station
         currentButton = BUTTON_STATION1;
         currentStation = station1;
+        display_str ("Air spectrum");
         // disconnect current web connection
         client.stop();
       }
@@ -221,6 +269,7 @@ void checkButton ()
         // on change de station
         currentButton = BUTTON_STATION2;
         currentStation = station2;
+        display_str ("RTL 2");
         // disconnect current web connection
         client.stop();
       }
@@ -231,6 +280,7 @@ void checkButton ()
         // on change de station
         currentButton = BUTTON_STATION3;
         currentStation = station3;
+        display_str ("Hit West");
         // disconnect current web connection
         client.stop();
       }
@@ -261,18 +311,15 @@ void checkButton ()
 
    WiFi.mode(WIFI_STA);
    //WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
-    ESP_WiFiManager wm;
+    ESP_WiFiManager wm ("radioseb");
+     
     wm.autoConnect("AutoConnectAP",""); // password protected ap
+
 
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
-    // TODO Hostname setting does not work. Always shows up as "espressif"
-    if(WiFi.setHostname("radioseb")) {
-        Serial.printf("\nHostname set!\n");
-    } else {
-        Serial.printf("\nHostname NOT set!\n");
-    }
+   
 
   // init button pour changer station
     pinMode(BUTTON_STATION1, INPUT);
@@ -343,6 +390,19 @@ void checkButton ()
   Serial.println("Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+
+
+
+   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    
+  }
+
+  // Show initial display buffer contents on the screen --
+  // the library initializes this with an Adafruit splash screen.
+ display_str ("Hello !!!");
+
 }
 
 void loop() {
