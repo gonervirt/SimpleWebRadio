@@ -8,7 +8,7 @@
 // 	GPIO4              	GPIO 4 D2	      pin 4 DREQ           
 // 	GPIO2              		-                    
 //  GPIO21                                                  SDA
-// 	GPIO22             		-                                 SCL
+// 	GPIO22                                                  SCL
 // 	GPIO16   RXD2      		-                    
 // 	GPIO17   TXD2      		-                    
 // 	GPIO18   SCK       	D5 (GPIO 14)   	pin 5 SCK            
