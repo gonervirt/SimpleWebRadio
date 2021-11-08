@@ -35,7 +35,6 @@
 
   To run this example define the platformio.ini as below.
 
-test 
 */
 
 #include <VS1053.h>
